@@ -1,0 +1,24 @@
+{
+  "name": "jcalendar",
+  "version": "1.0.0",
+  "description": "A lightweight, library independent JavaScript calendar",
+  "main": "dist/calendar.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rachmanzz/caleandar.git"
+  },
+  "keywords": [
+    "calendar",
+    "nodejs",
+    "javascript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rachmanzz/caleandar/issues"
+  },
+  "homepage": "https://github.com/rachmanzz/caleandar#readme"
+}

@@ -1,24 +1,10 @@
-// var events = [
-//     {'Date': new Date(2019, 12, 7), 'Title': 'Doctor appointment at 3:25pm.'},
-//     {'Date': new Date(2019, 12, 18), 'Title': 'New Garfield movie comes out!', 'Link': 'https://garfield.com'},
-//     {'Date': new Date(2019, 12, 27), 'Title': '25 year anniversary', 'Link': 'https://www.google.com.au/#q=anniversary+gifts'},
-//   ];
-//   var settings = {};
-//   var element = document.getElementById('caleandar');
-//   caleandar(element, events, settings);
-
-// function caleandar(el, data, settings){
-//     var obj = new Calendar(data, settings);
-//     createCalendar(obj, el);
-//   }
-
-const isDefine = function (v) { return typeof v !== 'undefined' },
-isString = function (v) { return isDefine(v) && typeof v === 'string' },
-isNumber = function (v) { return isDefine(v) && typeof v === 'number' },
-isFunc   = function (v) { return isDefine(v) && typeof v === 'function' },
-isBoolean = function (v) { return isDefine(v) && typeof v === 'boolean' },
-isArray  = function (v) { return isDefine(v) && Array.isArray(v) },
-isObject = function (v) { return isDefine(v) && !isArray(v) && typeof v === 'object' }
+const isDefine = function (v: any) : boolean { return typeof v !== 'undefined' },
+isString = function (v: any) : boolean { return isDefine(v) && typeof v === 'string' },
+isNumber = function (v: any) : boolean { return isDefine(v) && typeof v === 'number' },
+isFunc   = function (v: any) : boolean { return isDefine(v) && typeof v === 'function' },
+isBoolean = function (v: any) : boolean { return isDefine(v) && typeof v === 'boolean' },
+isArray  = function (v: any) : boolean { return isDefine(v) && Array.isArray(v) },
+isObject = function (v: any) : boolean { return isDefine(v) && !isArray(v) && typeof v === 'object' }
 
 class Elementator {
     el: HTMLElement | SVGElement
@@ -74,7 +60,7 @@ class Elementator {
         return this.__splitClass()
     }
 
-    hasClass (className): boolean {
+    hasClass (className: string): boolean {
         return this.__splitClass().indexOf(className) === -1 ? false : true
     }
 
@@ -88,7 +74,7 @@ class Elementator {
         return this
     }
 
-    addStyle (key: string, val: string): Elementator {
+    addStyle (key: any, val: string): Elementator {
         if (this.el instanceof HTMLElement) {
             this.el.style[key] = val
         }
@@ -143,32 +129,35 @@ interface selectItem {
     lastmonthstart: number
 }
 
+// template item
+// today: any
+// selectedDay: any,
+// date: any
 interface templateItem {
-    today: any
-    selectedDay: any,
-    date: any
+    [index: string]: any
 }
 
-interface itemSetting {
-    styles: itemStyle
-}
-
+// currentMonth, prevMonth, date, nextMonth, today, selectedDay
 interface itemStyle {
-    date: object,
-    currentMonth : object
-    prevMonth : object,
-    nextMonth : object,
-    today: object,
-    selectedDay: object
+    [index: string]: anyObject,
 }
 
+interface anyObject {
+    [index: string]: any
+}
 
 interface storagedateitem {
     date: number,
     status: string
 }
 interface clickItem {
-    date: any
+    [index: string]: any
+}
+
+interface settings {
+    styles: itemStyle,
+    templates: templateItem,
+    onclick: clickItem
 }
 
 class ElementCalendar {
@@ -181,8 +170,9 @@ class ElementCalendar {
     customElement: any
     TitleDate: Elementator
     ListDateElement: Elementator
+    CoreElement: Elementator
 
-    constructor (date: Date = null, settings: itemSetting) {
+    constructor (date: Date = null, settings: settings) {
         // Default Values
         this.MonthLabels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         this.DayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -402,6 +392,56 @@ class ElementCalendar {
         this.StorageDate = storagedate
     }
 
+
+    private __customItemDateList (parent: Elementator, child: any): void {
+        // start date
+        let date = 1
+        let nextdate = 1
+        let lastdatestart = this.Selected.lastmonthstart
+        let storagedate: Array<storagedateitem> = []
+        for (let i = 0; i < 42; i++) {
+
+            // prev month
+            if (this.Selected.firstday !== 0 && i < this.Selected.firstday) {
+                storagedate.push({ date:  lastdatestart, status: 'prev'})
+                this.__custom(parent, child(i, lastdatestart++))
+            }
+            // current month
+            if (i >= this.Selected.firstday && i < (this.Selected.firstday + this.Selected.enddate)) {
+                storagedate.push({ date:  date, status: 'current'})
+                this.__custom(parent, child(i,date++))
+            }
+            if (i >= (this.Selected.firstday + this.Selected.enddate)) {
+                storagedate.push({ date: nextdate, status: 'next'})
+                this.__custom(parent, child(i,nextdate++))
+            }
+        }
+        this.StorageDate = storagedate
+    }
+
+    private __customItemDateListPreRender (parent: Elementator, child: any): void {
+        // start date
+        let date = 1
+        let nextdate = 1
+        let lastdatestart = this.Selected.lastmonthstart
+        let storagedate: Array<storagedateitem> = []
+        for (let i = 0; i < 42; i++) {
+            // prev month
+            if (this.Selected.firstday !== 0 && i < this.Selected.firstday) {
+                storagedate.push({ date:  lastdatestart++, status: 'prev'})
+            }
+            // current month
+            if (i >= this.Selected.firstday && i < (this.Selected.firstday + this.Selected.enddate)) {
+                storagedate.push({ date:  date++, status: 'current'})
+            }
+            if (i >= (this.Selected.firstday + this.Selected.enddate)) {
+                storagedate.push({ date: nextdate++, status: 'next'})
+            }
+        }
+        child(storagedate, parent, this.__custom)
+        this.StorageDate = storagedate
+    }
+
     // end item of calendar
 
     // navigation action
@@ -419,6 +459,18 @@ class ElementCalendar {
         this.__reCreate()
     }
 
+
+    // navigation action
+    private ___customSetLeftClick () : void {
+        this.__setSelectedDate(this.__changeMonth(-1))
+        this.__customReCreate()
+    }
+
+    private ___customSetRightClick () : void {
+        this.__setSelectedDate(this.__changeMonth(1))
+        this.__customReCreate()
+    }
+
     // render item
     private __reCreate () {
         // if (isDefine(this.MainSection)) {
@@ -434,6 +486,11 @@ class ElementCalendar {
             this.ListDateElement.inElement("") // clear inner element
             this.__createItemDateList(this.ListDateElement)
         }
+    }
+
+    private __customReCreate () {
+        this.CoreElement.inElement('')
+        this.__custom(this.CoreElement)
     }
 
     private __custom (parent: Elementator, child: any = null) {
@@ -476,17 +533,57 @@ class ElementCalendar {
                     if(isArray(item.attr)) {
                         let attrSize = item.attr.length
                         for (let l = 0; l < attrSize; l++) {
-                            let attrItem = item.attr[i]
-                            if (isString(attrItem.name) && isString(attrItem.value) || isNumber(attrItem.value)) {
+                            let attrItem = item.attr[l]
+                            if (isString(attrItem.name) && isString(attrItem.value)) {
                                 nodeElm.attr(attrItem.name, attrItem.value)
                             }
                         }
                     }
 
+                    if (isBoolean(item.calButton)) {
+                        if (isString(item.calItem) && item.calItem === 'prevAction') {
+                            nodeElm.getElement().onclick = () => { this.___customSetLeftClick() }
+                        }
+
+                        if (isString(item.calItem) && item.calItem === 'nextAction') {
+                            nodeElm.getElement().onclick = () => { this.___customSetRightClick() }
+                        }
+                    }
+
+                    if (isFunc(item.onclick)) {
+                        nodeElm.getElement().onclick = () => item.onclick()
+                    }
+
                     if(isArray(item.child)) {
                         let childSize = item.child.length
-                        if (childSize > 0) this.__custom(nodeElm, item.child)
+                        if (childSize > 0) {
+                            if(isDefine(this.__custom)) this.__custom(nodeElm, item.child)
+                            if(isDefine(item.render)) item.render(nodeElm, item.child)
+                        }
                     }
+
+                    if(isFunc(item.child) && isString(item.calItem) && item.calItem === 'fulldate') {
+                        if(isDefine(this.__custom)) this.__custom(nodeElm, item.child(this.Selected.fulldate))
+                    }
+
+                    if (item.dateItem && item.calItem === 'childLoop' && isFunc(item.child)) {
+                            this.__customItemDateList(nodeElm, item.child)
+                    }
+
+                    if (item.dateItem && item.calItem === 'prerender' && isFunc(item.render)) {
+                        this.__customItemDateListPreRender(nodeElm, item.render.bind(this))
+                    }
+
+                    if (item.dateItem && item.calItem === 'render' && isFunc(item.child)) {
+                        let dataEl: Array<any> = item.data
+                        let datasize: number = dataEl.length
+                        for (let k = 0; k < datasize; k++) {
+                            item.render(nodeElm, item.child(dataEl[k]))
+                        }
+                        //this.__customItemDateListPreRender(nodeElm, item.render)
+                    }
+
+                    if(isString(item.html)) nodeElm.inElement(item.html)
 
                     parent.setChild(nodeElm)
                 }
@@ -504,6 +601,7 @@ class ElementCalendar {
 
     create(el: HTMLElement) : void {
         const element : Elementator = Elementator.init(el).addClass('NavShow-true DateTimeShow-true')
+        this.CoreElement = element
         if (isDefine(this.customElement)) this.__custom(element)
         else {
             const main : Elementator = Elementator.init('div').addClass('cld-main')
@@ -515,3 +613,6 @@ class ElementCalendar {
         }        
     }
 }
+
+(window as any).ElementCalendar = ElementCalendar
+export default ElementCalendar

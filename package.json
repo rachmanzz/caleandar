@@ -20,5 +20,16 @@
   "bugs": {
     "url": "https://github.com/rachmanzz/caleandar/issues"
   },
-  "homepage": "https://github.com/rachmanzz/caleandar#readme"
+  "homepage": "https://github.com/rachmanzz/caleandar#readme",
+  "devDependencies": {
+    "browserify": "^16.5.0",
+    "gulp": "^4.0.0",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "gulp-uglify": "^3.0.2",
+    "tsify": "^4.0.1",
+    "typescript": "^3.7.3",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  }
 }

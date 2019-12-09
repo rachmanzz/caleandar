@@ -234,7 +234,7 @@ class ElementCalendar {
         const endofdate: Date = new Date(this.Selected.year, (this.Selected.month + 1), 0)
         this.Selected.enddate = endofdate.getDate()
 
-        const endofdatelastmonth = new Date(this.Selected.year, (this.Selected.month - 1), 0)
+        const endofdatelastmonth = new Date(this.Selected.year, (this.Selected.month - 2), 0)
         const lastmonstenddate = endofdatelastmonth.getDate()
         this.Selected.lastmonthstart = this.Selected.firstday === 0 ? 0 : (lastmonstenddate - this.Selected.firstday + 1)
     }
